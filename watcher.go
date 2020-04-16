@@ -8,7 +8,7 @@ var watcher = &watcher_typ{}
 
 type watcher_typ struct {
 	ticker *time.Ticker
-	users  []*user
+	users  []*User
 }
 
 func (this *watcher_typ) run() {
@@ -25,14 +25,14 @@ func (this *watcher_typ) run() {
 	for {
 		select {
 		case <-this.ticker.C:
-			// watcher 定时检查 user 是否需要 resize
+			// watcher 定时检查 User 是否需要 resize
 			// 以及 pool 是否需要释放多余资源
-			// 如果该周期内发生过 user 主动的 resize，则跳过它的这次 resize 检查
-			// 同时跳过 user.nowLevel 对应的池的检查
+			// 如果该周期内发生过 User 主动的 resize，则跳过它的这次 resize 检查
+			// 同时跳过 User.nowLevel 对应的池的检查
 			for i, l = 0, len(this.users); i < l; i++ {
 				user := this.users[i]
 				if user.busy > 0 {
-					pool_flag[user.nowLevel] = 1 // 跳过 user.nowLevel 对应的池的检查
+					pool_flag[user.nowLevel] = 1 // 跳过 User.nowLevel 对应的池的检查
 					user.busy = 0
 					continue
 				}
@@ -59,6 +59,6 @@ func (this *watcher_typ) run() {
 
 // func init() {
 // 	watcher.ticker = time.NewTicker(time.Minute * 1)
-// 	watcher.users = []*user{}
+// 	watcher.users = []*User{}
 // 	go watcher.run()
 // }

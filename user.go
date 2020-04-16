@@ -4,7 +4,7 @@ import (
 	"sync"
 )
 
-type user struct {
+type User struct {
 	maxLevel level
 	nowLevel level
 
@@ -18,8 +18,8 @@ type user struct {
 	busy int // 一个检查周期里，进行主动 resize 的次数
 }
 
-func NewUser(max level) *user {
-	u := &user{
+func NewUser(max level) *User {
+	u := &User{
 		maxLevel:    max,
 		nowLevel:    LV_1024, // 默认的👨初始分配大小
 		stat:        make([]int, max+1),
@@ -31,8 +31,8 @@ func NewUser(max level) *user {
 	return u
 }
 
-// 约定：由该 user 『给出(get)』 的 Buffer 必须由该 user 『回收(put)』
-func (this *user) Get() (b *Buffer) {
+// 约定：由该 User 『给出(get)』 的 Buffer 必须由该 User 『回收(put)』
+func (this *User) Get() (b *Buffer) {
 	var p *pool
 	for i, l := int(this.nowLevel), int(this.maxLevel); i < l; i++ {
 		p = pools.pools[i]
@@ -58,7 +58,7 @@ func (this *user) Get() (b *Buffer) {
 	return b
 }
 
-func (this *user) stat_hook(b *Buffer) {
+func (this *User) stat_hook(b *Buffer) {
 	blv := b.level
 	this.stat_lock.Lock()
 	if blv > 0 { // 如果有降级的余地
@@ -92,7 +92,7 @@ func quickSort(arr []int, l, r int) {
 	}
 }
 
-func (this *user) resize() {
+func (this *User) resize() {
 	var length = int(this.maxLevel) + 1
 	this.stat_lock.Lock()
 	stat := this.stat
@@ -123,7 +123,7 @@ func (this *user) resize() {
 	<-this.resize_lock
 }
 
-func (this *user) levelup(b *Buffer) bool {
+func (this *User) levelup(b *Buffer) bool {
 	if b.level >= this.maxLevel {
 		return false
 	}
